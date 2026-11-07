@@ -41,6 +41,14 @@ function copyNode(el, rich){
     if (!ok && navigator.clipboard) navigator.clipboard.writeText(el.value);
     window.getSelection().removeAllRanges(); return;
   }
+  if (rich) {   // 본문: 페이지가 만든 HTML 그대로만 넣는다. 크롬 기본 복사는 글자 모양을 잔뜩 붙여(트렁크쇼 158KB) 네이버가 사진을 빼고 붙였다(효원님 2026-11-07)
+    const h = el.innerHTML, t = el.innerText;
+    const on = e => { e.clipboardData.setData('text/html', h); e.clipboardData.setData('text/plain', t); e.preventDefault(); };
+    document.addEventListener('copy', on);
+    let done = false; try { done = document.execCommand('copy'); } catch (e) {}
+    document.removeEventListener('copy', on);
+    if (done) return;
+  }
   const sel = window.getSelection(); sel.removeAllRanges();
   const r = document.createRange(); r.selectNodeContents(el); sel.addRange(r);
   let ok = false;
